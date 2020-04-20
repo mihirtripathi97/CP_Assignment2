@@ -1,38 +1,67 @@
-#include <stdio.h>
+#include<stdio.h>
 #include <stdlib.h>
 #include <math.h>
-int main(){
-int n=11;
-double t[n],y[n],yext[n],err[n],bound[n],h=0.2,a=0;
-bound[0]=0;
-y[0]=0.5;
 
-for (int i = 0; i < n; ++i)
+float F(float x,float y)
 {
-	t[i]=a+i*h;
+    float F;
+    F = y - x*x + 1;
+    return(F);
 }
 
-for (int i = 0; i < n; ++i)
+void Eular(float *y , float xi ,float xf, float h)
 {
-	yext[i]=pow(t[i]+1,2)-0.5*exp(t[i]);
+    int n,i;
+    n = ((xf-xi)/h);
+    float x=xi;
+    float yext[n],err[n],bound[n];
+    bound[0]=0;
+
+    for(i=0;i<=n;++i)
+    {
+
+        y[i+1] = y[i] + h*F(x,y[i]);
+        x = x+h;
+    }
+    x=xi;
+    for (int i = 0; i <= n+1; ++i)
+    {
+        yext[i]=pow(x+1,2)-0.5*exp(x);
+        x = x+h;
+    }
+
+    x=xi;
+    for (int i = 0; i < n+1; ++i)
+    {
+        y[i+1]=y[i]+h*(y[i]-pow(x,2)+1);
+        err[i+1]=fabs(y[i+1]-yext[i+1]);
+        bound[i+1]=.1*(.5*exp(2)-2)*(exp(x+h)-1);
+        x=x+h;
+    }
+    printf("t\tApp. Solution\texact soln:\n");
+    x=xi;
+    for (int i = 0; i < n+2; ++i)
+    {
+        printf("%f %f %f\n", x,y[i],yext[i]);
+        x=x+h;
+    }
+    printf("Error and Error bound:\n");
+
+    for (int i = 0; i < n+2; ++i)
+    {
+        printf("%f  %f\n",err[i],fabs(bound[i]));
+    }
+
+
 }
 
-for (int i = 0; i < n-1; ++i)
+void main()
 {
-	y[i+1]=y[i]+h*(y[i]-pow(t[i],2)+1);
-	err[i+1]=fabs(y[i+1]-yext[i+1]);
-	bound[i+1]=.1*(.5*exp(2)-2)*(exp(t[i+1])-1);
-}
+    float y[10];
+    y[0]=0.5;
+    float xi = 0;
+    float xf = 2;
+    float h = 0.2;
+    Eular(y,xi,xf,h);
 
-printf("t\tApp. Solution\texact soln:\n");
-for (int i = 0; i < n; ++i)
-{
-	printf("%f %f %f\n", t[i],y[i],yext[i]);
-}
-printf("Error and Error bound:\n");
-for (int i = 0; i < n; ++i)
-{
-	printf("%f  %f\n",err[i],fabs(bound[i]));
-}
-return(0);
 }
